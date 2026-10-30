@@ -65,9 +65,7 @@ async function performJob(destination: string, eventType: string, payload: objec
                 "webhook-event-type": eventType,
 
             },
-            body: JSON.stringify({
-                payload
-            }),
+            body: JSON.stringify(payload),
             signal: AbortSignal.timeout(10_000),
         });
 

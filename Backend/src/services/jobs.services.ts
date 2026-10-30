@@ -21,3 +21,20 @@ export async function findPendingJobs() {
     }
 
 }
+
+export async function findJobById(jobId: string) {
+    try {
+        const job = await prisma.delivery_jobs.findUnique({
+            where: {
+                id: BigInt(jobId),
+            },
+            include: {
+                events: true,
+            },
+        });
+        return job;
+    }
+    catch (err) {
+        throw new Error("Unable to find job with ID: " + jobId + ". Error: " + err);
+    }
+}
