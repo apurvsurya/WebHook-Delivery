@@ -13,13 +13,21 @@ async function publishJob(job: DeliveryJob) {
   if (job.status !== "pending") {
     return null;
   }
+
+  const eventDetails = {
+    ...job.events,
+    id: Number(job.events.id),
+    destination_id: Number(job.events.destination_id)
+};
+
   const queuedJob = await jobQueue.add(`delivery-${job.id}`,
     {
-      eventDetails: job.events,
+      eventDetails,
+      deliveryJobId:job.id.toString()
     },
     {
       jobId: `delivery-${job.id}`,
-      attempts: 7,
+      attempts: 5,
       backoff: {
         type: "exponential",
         delay: 1000,

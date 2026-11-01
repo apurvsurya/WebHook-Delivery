@@ -3,42 +3,63 @@ import type { Prisma } from "@prisma/client";
 import type { CreatedEvent, CreateEventInput } from "../models/events.models.js";
 
 export async function createEvent(input: CreateEventInput) {
-   const { destinationId, eventType, payload,userId } = input;
+   const { destinationId, eventType, payload, userId } = input;
 
-   return prisma.$transaction(async (tx:Prisma.TransactionClient)=>{
+   return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 
       // Find the given destination
       const destination = await tx.destinations.findFirst({
-         where:{
-            id:destinationId,
-            user_id:userId
+         where: {
+            id: destinationId,
+            user_id: userId
          },
-         select:{
-            id:true
+         select: {
+            id: true
          },
       });
 
-      if(!destination){
+      if (!destination) {
          throw new Error("Destintation not found for the given Id");
       }
 
       const event = await tx.events.create({
-         data:{
-            destination_id:destination.id,
-            event_type:eventType,
-            payload:payload,
-            status:"pending"
+         data: {
+            destination_id: destination.id,
+            event_type: eventType,
+            payload: payload,
+            status: "pending"
          }
       });
 
       //Create the corresponding delivery job
       await tx.delivery_jobs.create({
-         data:{
-            event_id:event.id,
+         data: {
+            event_id: event.id,
          }
       })
 
       return event;
    })
 
+}
+
+export async function getAllEvents(userId: string) {
+   return prisma.events.findMany({
+      where: {
+         destinations: {
+            user_id: userId
+         }
+      },
+      include: {
+         destinations: {
+            select: {
+               url: true
+            }
+         },
+         payload:false
+      },
+      orderBy: {
+         created_at: "desc"
+      }
+   });
 }

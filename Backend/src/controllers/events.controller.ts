@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { CreateEventInput } from "../models/events.models.js";
 import { createEvent } from "../services/events.service.js";
+import { getAllEvents } from "../services/events.service.js";
 
 export async function createEventController(req: Request, res: Response, next: NextFunction): Promise<any> {
 
@@ -42,4 +43,33 @@ export async function createEventController(req: Request, res: Response, next: N
         }
     }
 
+}
+
+export async function getAllEventsController(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            });
+        }
+
+        const events = await getAllEvents(userId);
+
+        return res.status(200).json({
+            success: true,
+            data: events
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Unable to get events!",
+            error: error
+        });
+    }
 }

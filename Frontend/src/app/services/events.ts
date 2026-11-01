@@ -3,6 +3,7 @@ import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Destinations } from '../models/destinations';
 import { environment } from '../../environments/environment';
+import { EventsDTO } from '../models/events';
 
 @Service()
 export class Events {
@@ -11,13 +12,13 @@ export class Events {
 
     GetAllDestinationsForUser(): Observable<{destinationList:Destinations[]}> {
         let url = `${this.apiUrl}/destinations/getall`;
+        return this.http.get<{destinationList:Destinations[]}>(url)
 
-        const token = sessionStorage.getItem("accesstoken");
-        const headers = new HttpHeaders({
-            Authorization: `Bearer ${token}`
-        });
-        return this.http.get<{destinationList:Destinations[]}>(url, { headers })
+    }
 
+    GetAllEvents():Observable<EventsDTO>{
+          let url = `${this.apiUrl}/events/getall`;
+        return this.http.get<EventsDTO>(url)
     }
 
 }

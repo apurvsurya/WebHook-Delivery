@@ -1,35 +1,206 @@
-
-<section class="bg-[#151521] border border-white/[0.07] rounded-2xl p-5 w-full max-w-md">
-
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-5">
-    <div>
-      <h3 class="text-white text-sm font-semibold">Recent Destinations</h3>
-      <p class="text-slate-500 text-xs mt-1">Your configured endpoints</p>
+<div class="grid grid-cols-5 xl:grid-cols-3 gap-5 items-start mb-5">
+  <div class="xl:col-span-2  rounded-2xl border border-white/5 bg-[#151521] p-5">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="text-white text-lg font-semibold">
+          Job Activity
+        </h3>
+        <p class="text-sm text-[#9292A5] mt-1">
+          Delivery performance over time
+        </p>
+      </div>
     </div>
 
-    <a
-      routerLink="/app/destinations"
-      class="text-xs text-violet-400 hover:text-violet-300 transition-colors"
-    >
-      View all →
-    </a>
+    <div class="h-[280px]">
+      <canvas baseChart [type]="'line'" [data]="jobChartData" [options]="jobChartOptions">
+      </canvas>
+    </div>
   </div>
+  <div class="rounded-2xl border border-white/5 bg-[#151521] p-5">
+    <h3 class="text-white text-lg font-semibold mb-4">
+      Event Summary
+    </h3>
 
-  <!-- Destination List -->
-  <div class="space-y-3">
+    <div class="grid grid-cols-3 gap-3 h-[100%]">
+      <div>
+        <p class="text-xs text-[#9292A5]">Total</p>
+        <p class="text-2xl font-semibold text-white">
+          {{ EventStats.total }}
+        </p>
+      </div>
 
-    @for (destination of Destinations.slice(0, 3);track destination.id) {
+      <div>
+        <p class="text-xs text-[#9292A5]">Succeeded</p>
+        <p class="text-2xl font-semibold text-emerald-400">
+          {{ EventStats.succeeded }}
+        </p>
+      </div>
+
+      <div>
+        <p class="text-xs text-[#9292A5]">Failed</p>
+        <p class="text-2xl font-semibold text-red-400">
+          {{ EventStats.failed }}
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-5 h-2 rounded-full bg-white/5 overflow-hidden flex">
+      <div class="bg-emerald-400 h-full" [style.width.%]="EventStats.total
+        ? EventStats.succeeded / EventStats.total * 100 : 0">
+      </div>
+      <div class="bg-red-400 h-full" [style.width.%]="EventStats.total
+        ? EventStats.failed / EventStats.total * 100 : 0">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-5 items-start">
+  <section class="xl:col-span-2 bg-[#151521] border border-white/[0.07]
+                  rounded-2xl p-5 min-w-0">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="text-white text-sm font-semibold">Latest Events</h3>
+        <p class="text-slate-500 text-xs mt-1">
+          Most recent events received by Webhook Hub
+        </p>
+      </div>
+
+      <a routerLink="/app/events" class="text-xs text-violet-400 hover:text-violet-300 transition-colors shrink-0">
+        View all →
+      </a>
+    </div>
+    <div class="space-y-2">
+
+      @for (event of LatestEvents.slice(0, 15); track event.id) {
+
       <div class="flex items-center gap-3 p-3 rounded-xl
-                  bg-[#0b0b13] border border-white/[0.05]
-                  hover:border-violet-500/30 transition-colors">
-
-        <!-- Icon -->
+                 bg-[#0b0b13] border border-white/[0.05]
+                 hover:border-violet-500/30 transition-colors
+                 min-w-0">
         <div class="w-9 h-9 rounded-lg bg-violet-500/10
-                    flex items-center justify-center shrink-0">
-          <lucide-icon [img]="globe" [size]="17"
-                       class="text-violet-400">
+                      flex items-center justify-center shrink-0">
+
+          <lucide-icon [img]="webhook" [size]="17" class="text-violet-400">
           </lucide-icon>
+
+        </div>
+
+        <!-- Event information -->
+        <div class="flex-1 min-w-0">
+
+          <div class="flex items-center gap-2 flex-wrap">
+
+            <p class="text-white text-xs font-medium truncate">
+              {{ event.event_type }}
+            </p>
+
+            <span class="text-[10px] text-slate-600">
+              #{{ event.id }}
+            </span>
+
+          </div>
+
+          <!-- Destination -->
+          <div class="flex items-center gap-1.5 mt-1.5 min-w-0">
+
+            <lucide-icon [img]="globe" [size]="11" class="text-slate-500 shrink-0">
+            </lucide-icon>
+
+            <p class="text-slate-500 text-[11px] truncate">
+              {{ event.destinations.url || ('Destination #' + event.destination_id) }}
+            </p>
+
+          </div>
+          <div class="flex items-center gap-3 mt-1.5 flex-wrap">
+
+            <span class="text-slate-600 text-[10px]">
+              {{ event.created_at | date:'medium' }}
+            </span>
+
+          </div>
+
+        </div>
+        <div class="shrink-0 flex flex-col items-end gap-1">
+
+          <span class="text-[10px] px-2 py-1 rounded-full font-medium" [ngClass]="getEventStatusClass(event.status)">
+            {{ event.status }}
+          </span>
+
+          <span class="text-[10px] text-slate-600">
+            View details
+          </span>
+
+        </div>
+
+      </div>
+
+      }
+
+      @if (LatestEvents.length === 0) {
+
+      <div class="py-10 text-center">
+
+        <lucide-icon [img]="webhook" [size]="28" class="text-slate-600 mx-auto mb-3">
+        </lucide-icon>
+
+        <p class="text-slate-400 text-xs">
+          No events received yet
+        </p>
+
+        <p class="text-slate-600 text-[11px] mt-1">
+          Your incoming webhook events will appear here.
+        </p>
+
+      </div>
+
+      }
+
+    </div>
+    <div class="mt-4 pt-3 border-t border-white/[0.06]
+                flex items-center justify-between">
+
+      <span class="text-slate-500 text-[11px]">
+        Showing {{ LatestEvents.length > 15 ? 15 : LatestEvents.length }}
+        of {{ LatestEvents.length }} recent events
+      </span>
+
+      <a routerLink="/app/events" class="text-violet-400 text-[11px] hover:text-violet-300">
+        Explore events →
+      </a>
+
+    </div>
+
+  </section>
+  <section class="bg-[#151521] border border-white/[0.07]
+                  rounded-2xl p-5 w-full min-w-0">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="text-white text-sm font-semibold">Recent Destinations</h3>
+        <p class="text-slate-500 text-xs mt-1">
+          Your configured endpoints
+        </p>
+      </div>
+
+      <a routerLink="/app/destinations" class="text-xs text-violet-400 hover:text-violet-300 transition-colors">
+        View all →
+      </a>
+    </div>
+    <div class="space-y-3">
+
+      @for (destination of Destinations.slice(0, 5); track destination.id) {
+
+      <div class="flex items-center gap-3 p-3 rounded-xl
+                    bg-[#0b0b13] border border-white/[0.05]
+                    hover:border-violet-500/30 transition-colors">
+
+        <div class="w-9 h-9 rounded-lg bg-violet-500/10
+                      flex items-center justify-center shrink-0">
+
+          <lucide-icon [img]="globe" [size]="17" class="text-violet-400">
+          </lucide-icon>
+
         </div>
 
         <div class="min-w-0 flex-1">
@@ -43,36 +214,42 @@
         </div>
 
       </div>
-    }
 
-    @if (Destinations.length === 0) {
+      }
+
+      @if (Destinations.length === 0) {
+
       <div class="py-7 text-center">
-        <lucide-icon name="webhook" [size]="25"
-                     class="text-slate-600 mx-auto mb-2">
+
+        <lucide-icon [img]="webhook" [size]="25" class="text-slate-600 mx-auto mb-2">
         </lucide-icon>
 
-        <p class="text-slate-400 text-xs">No destinations yet</p>
+        <p class="text-slate-400 text-xs">
+          No destinations yet
+        </p>
+
         <p class="text-slate-600 text-[11px] mt-1">
           Add an endpoint to start receiving events.
         </p>
+
       </div>
-    }
 
-  </div>
+      }
 
-  <!-- Footer -->
-  <div class="mt-4 pt-3 border-t border-white/[0.06]
-              flex items-center justify-between">
-    <span class="text-slate-500 text-[11px]">
-      {{ Destinations.length }} total destinations
-    </span>
+    </div>
+    <div class="mt-4 pt-3 border-t border-white/[0.06]
+                flex items-center justify-between">
 
-    <a
-      routerLink="/app/destinations"
-      class="text-violet-400 text-[11px] hover:text-violet-300"
-    >
-      Manage destinations
-    </a>
-  </div>
+      <span class="text-slate-500 text-[11px]">
+        {{ Destinations.length }} total destinations
+      </span>
 
-</section>
+      <a routerLink="/app/destinations" class="text-violet-400 text-[11px] hover:text-violet-300">
+        Manage →
+      </a>
+
+    </div>
+
+  </section>
+
+</div>

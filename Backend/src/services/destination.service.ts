@@ -47,3 +47,4 @@ export async function getAllDestinationsForUser(input:string){
 
     return destinationList;
 }
+
