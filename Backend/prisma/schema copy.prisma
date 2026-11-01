@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model delivery_attempts {
+  id             Int      @id @default(autoincrement())
+  event_id       Int
+  attempt_number Int
+  status_code    Int?
+  response_body  String?
+  duration_ms    Int?
+  error          String?
+  attempted_at   DateTime @default(now()) @db.Timestamptz(6)
+  events         events   @relation(fields: [event_id], references: [id], onUpdate: NoAction)
+
+  @@unique([event_id, attempt_number], map: "unique_event_attempt")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model delivery_jobs {
+  id              BigInt    @id @default(autoincrement())
+  event_id        Int
+  status          String    @default("pending") @db.VarChar(30)
+  attempts        Int       @default(0)
+  max_attempts    Int       @default(5)
+  next_attempt_at DateTime  @default(now()) @db.Timestamptz(6)
+  locked_until    DateTime? @db.Timestamptz(6)
+  last_error      String?
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime  @default(now()) @db.Timestamptz(6)
+  events          events    @relation(fields: [event_id], references: [id], onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model destinations {
+  url        String   @db.VarChar(300)
+  secret     String
+  created_at DateTime @default(now()) @db.Date
+  id         Int      @id(map: "Destinations_pkey") @default(autoincrement())
+  events     events[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model events {
+  id                Int                 @id @default(autoincrement())
+  destination_id    Int
+  event_type        String              @db.VarChar(200)
+  status            String              @default("pending") @db.VarChar(30)
+  payload           Json
+  created_at        DateTime            @default(now()) @db.Timestamptz(6)
+  delivery_attempts delivery_attempts[]
+  delivery_jobs     delivery_jobs[]
+  destinations      destinations        @relation(fields: [destination_id], references: [id], onUpdate: NoAction, map: "destination_fk")
+}

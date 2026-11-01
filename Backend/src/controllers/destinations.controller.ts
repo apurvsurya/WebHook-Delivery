@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import type { RegisterDestinationInput } from "../models/destinations.models.js";
-import { registerDestination } from "../services/destination.service.js"
+import { getAllDestinationsForUser, registerDestination } from "../services/destination.service.js"
+import { verifyToken } from "../services/token.service.js";
+import prisma from "../config/prisma.js";
 
 
 export const createDestination = async (req: Request, res: Response, next: NextFunction) => {
@@ -12,7 +14,7 @@ export const createDestination = async (req: Request, res: Response, next: NextF
         return res.status(400).json({
             message: "A valid URL is required",
         });
-        
+
     }
 
     try {
@@ -25,7 +27,30 @@ export const createDestination = async (req: Request, res: Response, next: NextF
     }
     catch (err) {
         return res.status(400).json({
-            message:`Error occurred while registering destination: ${(err as Error).message}`,
+            message: `Error occurred while registering destination: ${(err as Error).message}`,
         })
     }
+}
+
+export const getAllDestinations = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    try {
+        if (userId) {
+            const destinationList = await getAllDestinationsForUser(userId);
+            return res.status(200).json({
+                destinationList
+            })
+        }
+        else {
+            return res.status(404).json({
+                message: "Unable to find user!"
+            })
+        }
+    }
+    catch (err) {
+        return res.status(400).json({
+            message: `Error occurred while fetching destinations: ${(err as Error).message}`,
+        })
+    }
+
 }

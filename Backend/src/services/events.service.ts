@@ -3,13 +3,15 @@ import type { Prisma } from "@prisma/client";
 import type { CreatedEvent, CreateEventInput } from "../models/events.models.js";
 
 export async function createEvent(input: CreateEventInput) {
-   const { destinationId, eventType, payload } = input;
+   const { destinationId, eventType, payload,userId } = input;
 
    return prisma.$transaction(async (tx:Prisma.TransactionClient)=>{
 
-      const destination = await tx.destinations.findUnique({
+      // Find the given destination
+      const destination = await tx.destinations.findFirst({
          where:{
-            id:destinationId
+            id:destinationId,
+            user_id:userId
          },
          select:{
             id:true
@@ -20,7 +22,6 @@ export async function createEvent(input: CreateEventInput) {
          throw new Error("Destintation not found for the given Id");
       }
 
-      //Create the event
       const event = await tx.events.create({
          data:{
             destination_id:destination.id,

@@ -4,23 +4,30 @@ import { createEvent } from "../services/events.service.js";
 
 export async function createEventController(req: Request, res: Response, next: NextFunction): Promise<any> {
 
-    const input: CreateEventInput = req.body;
+    const userId = req.user?.id;
+    if (userId) {
+        const input: CreateEventInput = {
+            destinationId: req.body.destinationId,
+            eventType: req.body.eventType,
+            payload: req.body.payload,
+            userId: userId
+        };
 
-    if (
-        !Number.isInteger(input.destinationId) ||
-        Number(input.destinationId) <= 0 ||
-        typeof input.eventType !== "string" ||
-        input.eventType.trim().length === 0 ||
-        input.eventType.length > 200 ||
-        input.payload === null ||
-        typeof input.payload !== "object" ||
-        Array.isArray(input.payload) ||
-        input.payload === undefined
-    ) {
-        return res.status(400).json({
-            message:"A valid destinationId, eventType, and JSON object payload are required."
-        })
-    }
+        if (
+            !Number.isInteger(input.destinationId) ||
+            Number(input.destinationId) <= 0 ||
+            typeof input.eventType !== "string" ||
+            input.eventType.trim().length === 0 ||
+            input.eventType.length > 200 ||
+            input.payload === null ||
+            typeof input.payload !== "object" ||
+            Array.isArray(input.payload) ||
+            input.payload === undefined
+        ) {
+            return res.status(400).json({
+                message: "A valid destinationId, eventType, and JSON object payload are required."
+            })
+        }
         try {
             const result = await createEvent(input);
             return res.status(201).json({
@@ -33,5 +40,6 @@ export async function createEventController(req: Request, res: Response, next: N
                 message: `Error occurred while registering event: ${(err as Error).message}`,
             })
         }
+    }
 
 }

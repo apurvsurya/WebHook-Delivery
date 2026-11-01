@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-[#09090F] flex items-center justify-center px-4 py-10">
+
+    <div class="w-full max-w-md">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-semibold text-white">
+                Create your account
+            </h1>
+
+            <p class="text-[#9292A5] text-sm mt-2">
+                Get started with Webhook Hub
+            </p>
+        </div>
+
+        <div class="bg-[#151521] border border-white/10 rounded-2xl p-7 shadow-xl">
+
+            <!-- <form (ngSubmit)="onSubmit()" #registerForm="ngForm"> -->
+
+            <!-- Name -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-300 mb-2">
+                    Full name
+                </label>
+
+                <input type="text" name="name" [(ngModel)]="name" required placeholder="John Doe"
+                    class="w-full bg-[#0D0D17] border border-white/10 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 transition" />
+            </div>
+
+            <!-- Email -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-300 mb-2">
+                    Email address
+                </label>
+
+                <input type="email" name="email" [(ngModel)]="email" required email placeholder="you@example.com"
+                    class="w-full bg-[#0D0D17] border border-white/10 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 transition" />
+            </div>
+
+            <!-- Organization -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-300 mb-2">
+                    Organization
+                </label>
+
+                <input type="text" name="organization" [(ngModel)]="organization" required
+                    placeholder="Your company or team"
+                    class="w-full bg-[#0D0D17] border border-white/10 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 transition" />
+            </div>
+
+            <!-- Password -->
+            <div class="mb-6">
+                <label class="block text-sm text-gray-300 mb-2">
+                    Password
+                </label>
+
+                <input type="password" name="password" [(ngModel)]="password" required minlength="8"
+                    placeholder="Create a password"
+                    class="w-full bg-[#0D0D17] border border-white/10 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 transition" />
+
+                <p class="text-xs text-[#9292A5] mt-2">
+                    Use at least 8 characters.
+                </p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm text-gray-300 mb-2">
+                    Confirm Password
+                </label>
+
+                <input type="password" name="password" [(ngModel)]="confirmPassword" required minlength="8"
+                    placeholder="Create a password"
+                    class="w-full bg-[#0D0D17] border border-white/10 rounded-lg px-4 py-3 text-white text-sm outline-none focus:border-purple-500 transition" />
+                      <div *ngIf="!VerifyConfirmPassword()" class="text-red-400 text-xs mb-4">
+                Password do not match!
+            </div>
+            </div>
+
+            @if (errorMessage) {
+            <div class="text-red-400 text-xs mb-4">
+                {{ errorMessage }}
+            </div>
+            }
+            @if (successMessage) {
+            <div class="text-green-400 text-sm mb-4">
+                {{ successMessage }}
+            </div>
+            }
+
+            <button [disabled]="isLoading" (click)="RegisterAccount()"
+                class="w-full bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg py-3 transition flex items-center justify-center gap-2">
+                @if (isLoading) {
+                <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span>Creating account...</span>
+                } @else {
+                <span>Create account</span>
+                }
+            </button>
+
+            <!-- </form> -->
+
+            <p class="text-center text-sm text-[#9292A5] mt-6">
+                Already have an account?
+                <a routerLink="/login" class="text-purple-400 hover:text-purple-300 font-medium ml-1">
+                    Sign in
+                </a>
+            </p>
+
+        </div>
+
+        <p class="text-center text-xs text-[#666678] mt-6">
+            Webhook Hub · Reliable webhook delivery
+        </p>
+
+    </div>
+</div>

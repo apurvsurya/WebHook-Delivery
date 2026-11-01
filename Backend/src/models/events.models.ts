@@ -10,4 +10,5 @@ export interface CreateEventInput {
   destinationId: number;
   eventType: string;
   payload: Record<string, unknown>;
+  userId:string;
 }

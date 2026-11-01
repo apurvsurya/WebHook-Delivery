@@ -9,10 +9,15 @@ import { Router, RouterModule } from '@angular/router';
   templateUrl: './login-layout.html',
 })
 export class LoginLayout implements OnInit {
-  constructor(private _title:Title) {}
+  constructor(private _title:Title,private router:Router) {}
 
   ngOnInit(): void {
     this._title.setTitle('Login');
+
+    const token = sessionStorage.getItem('accesstoken');
+    if(token){
+      this.router.navigate(['app/dashboard']);
+    }
   }
 
 }

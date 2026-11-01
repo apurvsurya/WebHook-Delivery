@@ -1,20 +1,33 @@
 import express from "express";
 import helmet from "helmet";
 import { pool } from "./config/db.js";
+import cors from "cors";
 
 import destinationRoutes from "./routes/destination.routes.js";
 import eventRoutes from "./routes/events.router.js";
+import userRoutes from "./routes/users.routes.js"
+import jobRoutes from "./routes/jobs.routes.js"
 
 const app = express();
 const PORT:number = 3000;
 
 app.use(helmet());
+
+app.use(cors({
+    origin:"http://localhost:4200"
+}))
+
 app.use(express.json());
 
 //Routes
 
-app.use("/v1/destinations",destinationRoutes);
-app.use("/v1/events",eventRoutes);
+app.use("/destinations",destinationRoutes);
+app.use("/events",eventRoutes);
+app.use("/user",userRoutes);
+app.use("/jobs",jobRoutes);
+
+
+
 
 app.get("/health", (_req,res)=>{
     const date = new Date().toISOString();

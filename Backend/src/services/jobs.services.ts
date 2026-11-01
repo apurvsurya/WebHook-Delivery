@@ -38,3 +38,34 @@ export async function findJobById(jobId: string) {
         throw new Error("Unable to find job with ID: " + jobId + ". Error: " + err);
     }
 }
+
+export async function getAllJobsForUser(userID:string){
+    try{
+     const jobs = await prisma.delivery_jobs.findMany({
+        where: {
+            events: {
+                destinations: {
+                    user_id: userID
+                }
+            }
+        },
+        include: {
+            events: {
+                include: {
+                    destinations: true
+                }
+            }
+        },
+        orderBy: {
+            created_at: "desc"
+        }
+    });
+    return jobs;
+}
+catch(err){
+    throw new Error("Error occured while getting all jobs!" + err);
+}
+
+
+
+}
